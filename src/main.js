@@ -5,7 +5,11 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import App from './App'
 import router from './router'
+import '@/assets/css/reset.css'
+import MyHttpSever from '@/plugins/http.js'
+
 Vue.use(ElementUI);
+Vue.use(MyHttpSever);
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
