@@ -25,9 +25,11 @@ export default {
         };
     },
     methods: {
-        handleLogin() {
-            this.$http.post('login', this.formLabelAlign).then(res => {
-                console.log(res)
+        async handleLogin() {
+
+            // 优化后的async+await代码
+            const res = await  this.$http.post('login', this.formLabelAlign)
+             
                 const {
                     data,
                     meta: {
@@ -37,7 +39,7 @@ export default {
                 } = res.data
 
                 if (status === 200) {
-
+                    localStorage.setItem('token',data.token)
                     this.$message.success(msg)
                     this.$router.push({
                         name: 'home'
@@ -46,7 +48,30 @@ export default {
                     this.$message.warning(msg)
                 }
 
-            })
+         
+
+            //原始初步异步代码
+            // this.$http.post('login', this.formLabelAlign).then(res => {
+            //     console.log(res)
+            //     const {
+            //         data,
+            //         meta: {
+            //             msg,
+            //             status
+            //         }
+            //     } = res.data
+
+            //     if (status === 200) {
+
+            //         this.$message.success(msg)
+            //         this.$router.push({
+            //             name: 'home'
+            //         })
+            //     } else {
+            //         this.$message.warning(msg)
+            //     }
+
+            // })
 
         }
     }
