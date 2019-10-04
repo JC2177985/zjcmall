@@ -39,9 +39,9 @@ export default {
                 if (status === 200) {
 
                     this.$message.success(msg)
-                    // this.$router.push({
-                    //     name: 'home'
-                    // })
+                    this.$router.push({
+                        name: 'home'
+                    })
                 } else {
                     this.$message.warning(msg)
                 }
