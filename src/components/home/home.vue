@@ -13,7 +13,9 @@
                 </div>
             </el-col>
             <el-col :span="2" class="btn">
-                <div class="grid-content bg-purple">退出</div>
+                <div class="grid-content bg-purple">
+                    <a class="back" @click.prevent="handleSignout()">退出</a>
+                </div>
             </el-col>
         </el-row>
     </el-header>
@@ -116,11 +118,21 @@ export default {
       if(!token){
           this.$router.push({name:'login'})
       }
+    },
+    methods:{
+        handleSignout() {
+            localStorage.clear()
+            this.$message.success('退出成功')
+            this.$router.push({name:'login'})
+        }
     }
 }
 </script>
 
 <style scoped>
+.back {
+    cursor: pointer;
+}
 .btn {
     line-height: 60px;
     text-align: center;
