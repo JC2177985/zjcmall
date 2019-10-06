@@ -21,8 +21,8 @@
     </el-header>
     <el-container>
         <el-aside class="aside" width="200px">
-            <el-menu :unique-opened="true" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
-                <el-submenu index="1" >
+            <el-menu :router="true" :unique-opened="true" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+                <el-submenu index="1">
                     <template slot="title">
                         <i class="el-icon-location"></i>
                         <span>成员管理</span>
@@ -32,9 +32,9 @@
                         <i class="el-icon-setting"></i>
                         <span slot="title">导航四</span>
                     </el-menu-item>
-                    <el-menu-item index="1-2">
+                    <el-menu-item index="users">
                         <i class="el-icon-setting"></i>
-                        <span slot="title">导航四</span>
+                        <span slot="title">成员列表</span>
                     </el-menu-item>
 
                 </el-submenu>
@@ -106,24 +106,30 @@
             </el-menu>
 
         </el-aside>
-        <el-main class="main">Main</el-main>
+        <el-main class="main">
+            <router-view></router-view>
+        </el-main>
     </el-container>
 </el-container>
 </template>
 
 <script>
 export default {
-    beforeCreate(){
-      const token = localStorage.getItem('token')
-      if(!token){
-          this.$router.push({name:'login'})
-      }
+    beforeCreate() {
+        const token = localStorage.getItem('token')
+        if (!token) {
+            this.$router.push({
+                name: 'login'
+            })
+        }
     },
-    methods:{
+    methods: {
         handleSignout() {
             localStorage.clear()
             this.$message.success('退出成功')
-            this.$router.push({name:'login'})
+            this.$router.push({
+                name: 'login'
+            })
         }
     }
 }
@@ -133,6 +139,7 @@ export default {
 .back {
     cursor: pointer;
 }
+
 .btn {
     line-height: 60px;
     text-align: center;
