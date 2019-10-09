@@ -26,7 +26,6 @@ export default {
     },
     methods: {
         async handleLogin() {
-
             // 优化后的async+await代码
             const res = await  this.$http.post('login', this.formLabelAlign)
              
