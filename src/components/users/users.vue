@@ -11,7 +11,7 @@
                 <el-button slot="append" icon="el-icon-search" @click="searchUser()">
                 </el-button>
             </el-input>
-            <el-button type="success" @click="dialogFormVisible = true">
+            <el-button type="success" @click="showUser()">
                 新增成员
             </el-button>
         </el-col>
@@ -30,16 +30,16 @@
         </el-table-column>
         <el-table-column label="用户状态">
             <template slot-scope="scope">
-                <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949">
+                <el-switch @change="changMgState(scope.row)" v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949">
                 </el-switch>
             </template>
         </el-table-column>
         <el-table-column label="操作">
             <template slot-scope="scope">
-                <el-button @click="showEdit()" size="mini" type="primary" icon="el-icon-edit" plain circle>
+                <el-button @click="showEdit(scope.row)" size="mini" type="primary" icon="el-icon-edit" plain circle>
 
                 </el-button>
-                <el-button size="mini" type="primary" icon="el-icon-share" plain circle>
+                <el-button @click="showSetUserRole(scope.row)" size="mini" type="primary" icon="el-icon-share" plain circle>
 
                 </el-button>
                 <el-button @click="showDelete(scope.row.id)" size="mini" type="primary" icon="el-icon-delete" plain circle>
@@ -79,7 +79,7 @@
     <el-dialog title="编辑成员" :visible.sync="dialogFormVisibleEdit">
         <el-form :model="form">
             <el-form-item label="用户名" :label-width="formLabelWidth">
-                <el-input v-model="form.username" auto-complete="off"></el-input>
+                <el-input disabled v-model="form.username" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="电话" :label-width="formLabelWidth">
                 <el-input v-model="form.mobile" auto-complete="off"></el-input>
@@ -90,7 +90,26 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
-            <el-button type="primary" @click="AddUsers()">确 定</el-button>
+            <el-button type="primary" @click="editUsers()">确 定</el-button>
+        </div>
+    </el-dialog>
+
+    <!-- 分配用户角色 -->
+    <el-dialog title="分配角色" :visible.sync="dialogFormSetUser">
+        <el-form :model="form">
+            <el-form-item label="家庭成员" label-width="100px">
+                {{currname}}
+            </el-form-item>
+            <el-form-item label="角色" label-width="100px">
+                <el-select v-model="currRoleId" placeholder="请选择角色">
+                    <el-option label="请选择" :value="-1"></el-option>
+                    <el-option :label="item.roleName" :value="item.id" v-for="(item,i) in roles" :key="i"></el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormSetUser = false">取 消</el-button>
+            <el-button type="primary" @click="setRole()">确 定</el-button>
         </div>
     </el-dialog>
 
@@ -142,26 +161,60 @@ export default {
             dialogTableVisible: false,
             dialogFormVisibleEdit: false,
             dialogFormVisible: false, //false代表不显示对话框
+            // 分配角色
+            dialogFormSetUser: false,
             form: {
                 username: '',
                 password: '',
                 mobile: '',
                 email: ''
             },
-            formLabelWidth: '120px'
+            formLabelWidth: '120px',
+            currUserId: -1, //当前userid
+            currRoleId: -1,
+            currname: '', //成员初始姓名
+            roles: []
         }
     },
     created() {
         this.getUserList()
     },
     methods: {
-        //
-        showEdit(){
-            this.dialogFormVisibleEdit = true
+        //设置角色
+        async setRole() {
+            this.dialogFormSetUser = false
+            const res = await this.$http.put(`user/${this.currUserId}/role`,{rid:this.currRoleId})
+            console.log(res)
+        },
+        //分配角色
+        async showSetUserRole(user) {
+            console.log(user)
+            this.currname = user.username
+            this.currUserId = user.id
+            const res = await this.$http.get(`users/${user.id}`) //获取用户成员名称的接口
+            const res1 = await this.$http.get(`roles`) //获取角色类型名称
+            this.roles = res1.data.data
+            this.currRoleId = res.data.data.rid
+            this.dialogFormSetUser = true
 
         },
+        //改变用户状态
+        async changMgState(user) {
+            const res = await this.$http.put(`user/${user.id}/state/${user.mg_state}`)
+            console.log(res)
+        },
+        //弹出编辑输入框
+        showEdit(user) {
+            this.form = {}
+            console.log(user)
+            this.form = user
+            this.dialogFormVisibleEdit = true
+        },
         //编辑成员
-        editUsers () {
+        async editUsers(userId) {
+            this.dialogFormVisibleEdit = false
+            const res = await this.$http.put(`user/${this.form.id}`, this.form)
+            this.getUserList()
 
         },
         // 删除用户
@@ -172,14 +225,14 @@ export default {
                 type: 'warning'
             }).then(async () => {
                 debugger
-                const res = await this.$http.delete('users/${userId}')
+                const res = await this.$http.delete(`users/${userId}`)
                 console.log(res)
                 if (res.data.meta.status === 200)
                     this.getUserList()
-                    this.$message({
-                        type: 'success',
-                        message: res.data.meta.msg
-                    });
+                this.$message({
+                    type: 'success',
+                    message: res.data.meta.msg
+                });
             }).catch(() => {
                 this.$message({
                     type: 'info',
@@ -187,7 +240,13 @@ export default {
                 });
             });
         },
+        // 添加成员 this.form = {}
+        showUser() {
+            this.dialogFormVisible = true
+            this.form = {}
+        },
         async AddUsers() {
+
             this.dialogFormVisible = false
             const res = await this.$http.post('users', this.form)
             console.log(res)
