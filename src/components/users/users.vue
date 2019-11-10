@@ -1,10 +1,11 @@
 <template>
 <el-card class="box-card">
-    <el-breadcrumb separator="/">
+    <!-- <el-breadcrumb separator="/">
         <el-breadcrumb-item>首页</el-breadcrumb-item>
         <el-breadcrumb-item>成员管理</el-breadcrumb-item>
         <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-    </el-breadcrumb>
+    </el-breadcrumb> -->
+    <my-bread level1="成员管理" level2="用户列表"></my-bread>
     <el-row class="searchRow">
         <el-col>
             <el-input @clear="loadUserList()" placeholder="请输入内容" v-model="query" class="inputSearch" clearable>
@@ -285,8 +286,9 @@ export default {
         },
         async getUserList() {
 
-            const AUTH_TOKEN = localStorage.getItem('token')
-            this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
+            // const AUTH_TOKEN = localStorage.getItem('token')
+            // this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
+            
             const res = await this.$http.get('users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}')
             console.log(res)
 
