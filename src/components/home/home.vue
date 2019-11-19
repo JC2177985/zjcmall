@@ -22,19 +22,21 @@
     <el-container>
         <el-aside class="aside" width="200px">
             <el-menu :router="true" :unique-opened="true" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
-                <el-submenu index="1">
+                <el-submenu :index="''+item.order" v-for="(item,i) in menus" :key="i">
                     <template slot="title">
                         <i class="el-icon-location"></i>
-                        <span>成员管理</span>
+                        <span>{{item.authName}}</span>
                     </template>
 
-                    <el-menu-item index="users">
+                    <el-menu-item :index="item2.path" v-for="(item2,i) in item.children" :key="i">
                         <i class="el-icon-setting"></i>
-                        <span slot="title">成员列表</span>
+                        <span slot="title">{{item2.authName}}</span>
                     </el-menu-item>
 
                 </el-submenu>
-                <el-submenu index="2">
+
+
+                <!-- <el-submenu index="2">
                     <template slot="title">
                         <i class="el-icon-location"></i>
                         <span>权限管理</span>
@@ -98,7 +100,7 @@
                         <span slot="title">导航四</span>
                     </el-menu-item>
 
-                </el-submenu>
+                </el-submenu> -->
 
             </el-menu>
 
@@ -112,15 +114,29 @@
 
 <script>
 export default {
-    beforeCreate() {
-        const token = localStorage.getItem('token')
-        if (!token) {
-            this.$router.push({
-                name: 'login'
-            })
+    data() {
+        return {
+            menus: []
         }
     },
+    // beforeCreate() {
+    //     const token = localStorage.getItem('token')
+    //     if (!token) {
+    //         this.$router.push({
+    //             name: 'login'
+    //         })
+    //     }
+    // },
+    created() {
+        this.getMenus()
+        
+    },
     methods: {
+        async getMenus(){
+            const res = await this.$http.get(`menus`)
+            this.menus = res.data.data
+            console.log(res)
+        },
         handleSignout() {
             localStorage.clear()
             this.$message.success('退出成功')

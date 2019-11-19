@@ -10,6 +10,15 @@ import MyHttpSever from '@/plugins/http.js'
 import MyBread from '@/components/cuscom/myBread.vue'
 import moment from 'moment'
 
+
+import Router from 'vue-router'
+Vue.use(Router)
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
+
+
 Vue.use(ElementUI);
 Vue.use(MyHttpSever);
 Vue.config.productionTip = false
